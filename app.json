@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "CAIR",
+    "slug": "cair-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1a4731"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "ar.cair.mobile"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1a4731"
+      },
+      "package": "ar.cair.mobile",
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store"
+    ],
+    "scheme": "cair",
+    "extra": {
+      "apiUrl": "https://cair-app.vercel.app",
+      "router": {},
+      "eas": {
+        "projectId": "2e997574-ef56-45b2-8fea-dd344ddc50f2"
+      }
+    }
+  }
+}
