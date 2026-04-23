@@ -40,6 +40,7 @@ export async function login(email: string, password: string) {
   return data.user
 }
 
+
 export async function logout() {
   await SecureStore.deleteItemAsync("session_token")
   await SecureStore.deleteItemAsync("session_user")

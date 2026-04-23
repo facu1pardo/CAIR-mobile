@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { ScrollView, View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from "react-native"
 import { useRouter } from "expo-router"
 import { useAuth } from "@/lib/auth-context"
-import { apiFetch, login as apiLogin, apiFetch as apiRegister } from "@/lib/api"
+import { apiFetch, login as apiLogin } from "@/lib/api"
 import type { Listing, Inquiry } from "@/types"
 
 type AuthView = "landing" | "login" | "registro"
@@ -221,6 +221,27 @@ export default function DashboardScreen() {
             <Text className="text-gray-400">›</Text>
           </TouchableOpacity>
         </View>
+
+        {user.role === "admin" && (
+          <View className="bg-white rounded-xl border border-gray-200 mb-4 overflow-hidden">
+            <Text className="text-gray-500 text-xs font-semibold px-4 pt-4 pb-2 uppercase tracking-wide">Administración</Text>
+            <TouchableOpacity onPress={() => router.push("/admin/metricas")} className="flex-row items-center px-4 py-3 border-t border-gray-100">
+              <Text className="text-xl mr-3">📊</Text>
+              <Text className="text-gray-900 font-medium flex-1">Métricas</Text>
+              <Text className="text-gray-400">›</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push("/admin/vendedores")} className="flex-row items-center px-4 py-3 border-t border-gray-100">
+              <Text className="text-xl mr-3">🏢</Text>
+              <Text className="text-gray-900 font-medium flex-1">Vendedores</Text>
+              <Text className="text-gray-400">›</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push("/admin/publicaciones")} className="flex-row items-center px-4 py-3 border-t border-gray-100">
+              <Text className="text-xl mr-3">📋</Text>
+              <Text className="text-gray-900 font-medium flex-1">Publicaciones</Text>
+              <Text className="text-gray-400">›</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         <View className="bg-white rounded-xl border border-gray-200 mb-4 overflow-hidden">
           <Text className="text-gray-500 text-xs font-semibold px-4 pt-4 pb-2 uppercase tracking-wide">Consultas</Text>

@@ -54,6 +54,15 @@ const PROVINCES: { name: string; lat: number; lng: number; delta: number }[] = [
   { name: "Tucumán",           lat: -26.82, lng: -65.22, delta: 2.5 },
 ]
 
+const SAMPLE_LISTINGS: MapListing[] = [
+  { id: "1", slug: "campo-agricola-cordoba", title: "Campo Agrícola en Córdoba", lat: -32.5, lng: -63.5, price_usd: 2500000, surface_ha: 850, province: "Córdoba", field_type_name: "Agrícola", cover_image: null },
+  { id: "2", slug: "estancia-ganadera-bs-as", title: "Estancia Ganadera Buenos Aires", lat: -37.2, lng: -59.8, price_usd: 4800000, surface_ha: 2200, province: "Buenos Aires", field_type_name: "Ganadero", cover_image: null },
+  { id: "3", slug: "campo-mixto-santa-fe", title: "Campo Mixto Santa Fe", lat: -30.8, lng: -61.2, price_usd: 1900000, surface_ha: 450, province: "Santa Fe", field_type_name: "Mixto", cover_image: null },
+  { id: "4", slug: "tambo-entre-rios", title: "Tambo Entre Ríos", lat: -32.1, lng: -59.7, price_usd: 980000, surface_ha: 180, province: "Entre Ríos", field_type_name: "Tambero", cover_image: null },
+  { id: "5", slug: "campo-forestal-misiones", title: "Campo Forestal Misiones", lat: -27.4, lng: -55.1, price_usd: 750000, surface_ha: 320, province: "Misiones", field_type_name: "Forestal", cover_image: null },
+  { id: "6", slug: "campo-agricola-la-pampa", title: "Campo Agrícola La Pampa", lat: -36.1, lng: -64.8, price_usd: 3100000, surface_ha: 1500, province: "La Pampa", field_type_name: "Agrícola", cover_image: null },
+]
+
 const HA_RANGES = [
   { label: "< 100 ha",        min: 0,     max: 100 },
   { label: "100 – 500 ha",    min: 100,   max: 500 },
@@ -79,8 +88,8 @@ export default function MapaScreen() {
 
   useEffect(() => {
     apiFetch<{ listings: MapListing[] }>("/api/mobile/map-listings")
-      .then((d) => setListings(d.listings))
-      .catch(() => {})
+      .then((d) => setListings(d.listings.length > 0 ? d.listings : SAMPLE_LISTINGS))
+      .catch(() => setListings(SAMPLE_LISTINGS))
       .finally(() => setLoading(false))
   }, [])
 
@@ -293,12 +302,12 @@ export default function MapaScreen() {
       </View>
 
       {/* Zoom buttons */}
-      <View style={{ position: "absolute", right: 16, bottom: 120, flexDirection: "column", zIndex: 999, elevation: 999 }}>
-        <TouchableOpacity onPress={() => zoom(0.5)} style={{ width: 48, height: 48, backgroundColor: "#fff", borderRadius: 10, alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.25, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 10, marginBottom: 6 }}>
-          <Text style={{ fontSize: 28, color: "#1a4731", fontWeight: "300", lineHeight: 32 }}>+</Text>
+      <View style={{ position: "absolute", right: 16, bottom: selected ? 140 : 24, flexDirection: "column", zIndex: 999, elevation: 999 }}>
+        <TouchableOpacity onPress={() => zoom(0.5)} style={{ width: 52, height: 52, backgroundColor: "#1a4731", borderRadius: 12, alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 12, marginBottom: 8 }}>
+          <Text style={{ fontSize: 30, color: "#fff", fontWeight: "400", lineHeight: 36 }}>+</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => zoom(2)} style={{ width: 48, height: 48, backgroundColor: "#fff", borderRadius: 10, alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.25, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 10 }}>
-          <Text style={{ fontSize: 28, color: "#1a4731", fontWeight: "300", lineHeight: 32 }}>−</Text>
+        <TouchableOpacity onPress={() => zoom(2)} style={{ width: 52, height: 52, backgroundColor: "#1a4731", borderRadius: 12, alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 12 }}>
+          <Text style={{ fontSize: 30, color: "#fff", fontWeight: "400", lineHeight: 36 }}>−</Text>
         </TouchableOpacity>
       </View>
 

@@ -64,11 +64,6 @@ export default function LoginScreen() {
           )}
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.push("/(auth)/registro")} className="mt-4 items-center">
-          <Text className="text-gray-500 text-sm">
-            ¿No tenés cuenta? <Text className="text-primary font-semibold">Registrate</Text>
-          </Text>
-        </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
   )

@@ -63,6 +63,46 @@ export default function TabsLayout() {
           headerTintColor: "#ffffff",
         }}
       />
+      <Tabs.Screen
+        name="dashboard/nueva-publicacion"
+        options={{
+          href: null,
+          headerShown: true,
+          title: "Nueva publicación",
+          headerStyle: { backgroundColor: "#1a4731" },
+          headerTintColor: "#ffffff",
+        }}
+      />
+      <Tabs.Screen
+        name="admin/vendedores"
+        options={{
+          href: null,
+          headerShown: true,
+          title: "Vendedores",
+          headerStyle: { backgroundColor: "#1a4731" },
+          headerTintColor: "#ffffff",
+        }}
+      />
+      <Tabs.Screen
+        name="admin/metricas"
+        options={{
+          href: null,
+          headerShown: true,
+          title: "Métricas",
+          headerStyle: { backgroundColor: "#1a4731" },
+          headerTintColor: "#ffffff",
+        }}
+      />
+      <Tabs.Screen
+        name="admin/publicaciones"
+        options={{
+          href: null,
+          headerShown: true,
+          title: "Publicaciones",
+          headerStyle: { backgroundColor: "#1a4731" },
+          headerTintColor: "#ffffff",
+        }}
+      />
     </Tabs>
   )
 }
