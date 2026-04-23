@@ -2,7 +2,6 @@ import { useEffect, useState } from "react"
 import { ScrollView, View, Text, TouchableOpacity, ActivityIndicator, Image, Linking, TextInput, Alert, Dimensions } from "react-native"
 import { useLocalSearchParams, useNavigation } from "expo-router"
 import { apiFetch } from "@/lib/api"
-import { useFavorites } from "@/lib/favorites"
 import { formatCurrency, formatNumber, formatRentCanon } from "@/lib/utils"
 import { RENT_PAYMENT_FREQUENCY_LABELS } from "@/types"
 import type { Listing } from "@/types"
@@ -18,7 +17,6 @@ export default function ListingDetailScreen() {
   const [loading, setLoading] = useState(true)
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" })
   const [sending, setSending] = useState(false)
-  const { isFav, toggle } = useFavorites()
 
   useEffect(() => {
     apiFetch<{ listing: Listing; images: { url: string }[] }>(`/api/mobile/listings/${slug}`)
@@ -111,14 +109,6 @@ export default function ListingDetailScreen() {
           </View>
         )}
 
-        {/* Favorito */}
-        <TouchableOpacity
-          onPress={() => toggle(listing.id)}
-          style={{ position: "absolute", top: 12, right: 12, width: 44, height: 44, borderRadius: 22, backgroundColor: "rgba(255,255,255,0.92)", alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 6, elevation: 6 }}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <Text style={{ fontSize: 22 }}>{isFav(listing.id) ? "❤️" : "🤍"}</Text>
-        </TouchableOpacity>
       </View>
 
       <View className="px-5 pt-5">

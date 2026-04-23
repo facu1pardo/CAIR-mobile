@@ -48,7 +48,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="dashboard"
         options={{
-          title: user?.role === "seller" || user?.role === "admin" ? "Mi cuenta" : "Ingresar",
+          title: "Cuenta",
           headerTitle: "Mi cuenta",
           tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} />,
         }}

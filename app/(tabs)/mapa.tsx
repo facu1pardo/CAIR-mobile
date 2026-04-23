@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react"
-import { View, Text, TouchableOpacity, Image, ActivityIndicator, ScrollView } from "react-native"
-import MapView, { Marker, Region } from "react-native-maps"
+import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView } from "react-native"
+import MapView, { Marker, Callout, Region } from "react-native-maps"
 import { useRouter } from "expo-router"
 import { apiFetch } from "@/lib/api"
 import { formatCurrency } from "@/lib/utils"
@@ -16,6 +16,8 @@ interface MapListing {
   province: string
   field_type_name: string | null
   cover_image: string | null
+  for_sale: boolean
+  for_rent: boolean
 }
 
 const ARGENTINA_REGION: Region = {
@@ -55,12 +57,12 @@ const PROVINCES: { name: string; lat: number; lng: number; delta: number }[] = [
 ]
 
 const SAMPLE_LISTINGS: MapListing[] = [
-  { id: "1", slug: "campo-agricola-cordoba", title: "Campo Agrícola en Córdoba", lat: -32.5, lng: -63.5, price_usd: 2500000, surface_ha: 850, province: "Córdoba", field_type_name: "Agrícola", cover_image: null },
-  { id: "2", slug: "estancia-ganadera-bs-as", title: "Estancia Ganadera Buenos Aires", lat: -37.2, lng: -59.8, price_usd: 4800000, surface_ha: 2200, province: "Buenos Aires", field_type_name: "Ganadero", cover_image: null },
-  { id: "3", slug: "campo-mixto-santa-fe", title: "Campo Mixto Santa Fe", lat: -30.8, lng: -61.2, price_usd: 1900000, surface_ha: 450, province: "Santa Fe", field_type_name: "Mixto", cover_image: null },
-  { id: "4", slug: "tambo-entre-rios", title: "Tambo Entre Ríos", lat: -32.1, lng: -59.7, price_usd: 980000, surface_ha: 180, province: "Entre Ríos", field_type_name: "Tambero", cover_image: null },
-  { id: "5", slug: "campo-forestal-misiones", title: "Campo Forestal Misiones", lat: -27.4, lng: -55.1, price_usd: 750000, surface_ha: 320, province: "Misiones", field_type_name: "Forestal", cover_image: null },
-  { id: "6", slug: "campo-agricola-la-pampa", title: "Campo Agrícola La Pampa", lat: -36.1, lng: -64.8, price_usd: 3100000, surface_ha: 1500, province: "La Pampa", field_type_name: "Agrícola", cover_image: null },
+  { id: "1", slug: "campo-agricola-cordoba", title: "Campo Agrícola en Córdoba", lat: -32.5, lng: -63.5, price_usd: 2500000, surface_ha: 850, province: "Córdoba", field_type_name: "Agrícola", cover_image: null, for_sale: true, for_rent: false },
+  { id: "2", slug: "estancia-ganadera-bs-as", title: "Estancia Ganadera Buenos Aires", lat: -37.2, lng: -59.8, price_usd: 4800000, surface_ha: 2200, province: "Buenos Aires", field_type_name: "Ganadero", cover_image: null, for_sale: true, for_rent: false },
+  { id: "3", slug: "campo-mixto-santa-fe", title: "Campo Mixto Santa Fe", lat: -30.8, lng: -61.2, price_usd: 1900000, surface_ha: 450, province: "Santa Fe", field_type_name: "Mixto", cover_image: null, for_sale: true, for_rent: true },
+  { id: "4", slug: "tambo-entre-rios", title: "Tambo Entre Ríos", lat: -32.1, lng: -59.7, price_usd: 980000, surface_ha: 180, province: "Entre Ríos", field_type_name: "Tambero", cover_image: null, for_sale: false, for_rent: true },
+  { id: "5", slug: "campo-forestal-misiones", title: "Campo Forestal Misiones", lat: -27.4, lng: -55.1, price_usd: 750000, surface_ha: 320, province: "Misiones", field_type_name: "Forestal", cover_image: null, for_sale: true, for_rent: false },
+  { id: "6", slug: "campo-agricola-la-pampa", title: "Campo Agrícola La Pampa", lat: -36.1, lng: -64.8, price_usd: 3100000, surface_ha: 1500, province: "La Pampa", field_type_name: "Agrícola", cover_image: null, for_sale: true, for_rent: true },
 ]
 
 const HA_RANGES = [
@@ -71,20 +73,20 @@ const HA_RANGES = [
   { label: "> 10.000 ha",     min: 10000, max: Infinity },
 ]
 
-type ActivePanel = "provincia" | "tipo" | "hectareas" | null
+type ActivePanel = "provincia" | "tipo" | "hectareas" | "modalidad" | null
 
 export default function MapaScreen() {
   const router = useRouter()
   const mapRef = useRef<MapView>(null)
   const [listings, setListings] = useState<MapListing[]>([])
   const [loading, setLoading] = useState(true)
-  const [selected, setSelected] = useState<MapListing | null>(null)
   const [region, setRegion] = useState<Region>(ARGENTINA_REGION)
   const [activePanel, setActivePanel] = useState<ActivePanel>(null)
 
   const [filterProvincia, setFilterProvincia] = useState<string | null>(null)
   const [filterTipo, setFilterTipo] = useState<string | null>(null)
   const [filterHa, setFilterHa] = useState<number | null>(null)
+  const [filterModalidad, setFilterModalidad] = useState<"venta" | "arrend" | null>(null)
 
   useEffect(() => {
     apiFetch<{ listings: MapListing[] }>("/api/mobile/map-listings")
@@ -101,11 +103,13 @@ export default function MapaScreen() {
         const range = HA_RANGES[filterHa]
         if (!l.surface_ha || l.surface_ha < range.min || l.surface_ha >= range.max) return false
       }
+      if (filterModalidad === "venta" && !l.for_sale) return false
+      if (filterModalidad === "arrend" && !l.for_rent) return false
       return true
     })
-  }, [listings, filterProvincia, filterTipo, filterHa])
+  }, [listings, filterProvincia, filterTipo, filterHa, filterModalidad])
 
-  const activeFilters = [filterProvincia, filterTipo, filterHa !== null].filter(Boolean).length
+  const activeFilters = [filterProvincia, filterTipo, filterHa !== null, filterModalidad !== null].filter(Boolean).length
 
   function zoom(factor: number) {
     const next = {
@@ -119,7 +123,6 @@ export default function MapaScreen() {
 
   function togglePanel(panel: ActivePanel) {
     setActivePanel((p) => (p === panel ? null : panel))
-    setSelected(null)
   }
 
   const pillStyle = (active: boolean) => ({
@@ -149,17 +152,18 @@ export default function MapaScreen() {
         ref={mapRef}
         style={{ flex: 1 }}
         region={region}
-        onPress={() => { setSelected(null); setActivePanel(null) }}
+        onPress={() => setActivePanel(null)}
         onRegionChangeComplete={setRegion}
       >
         {filtered.map((l) => (
           <Marker
             key={l.id}
             coordinate={{ latitude: l.lat, longitude: l.lng }}
-            onPress={() => { setSelected(l); setActivePanel(null) }}
+            onPress={() => setActivePanel(null)}
           >
+            {/* Pin con precio */}
             <View style={{
-              backgroundColor: "#1a4731",
+              backgroundColor: l.for_rent && !l.for_sale ? "#2563eb" : "#1a4731",
               paddingHorizontal: 8,
               paddingVertical: 4,
               borderRadius: 12,
@@ -171,9 +175,68 @@ export default function MapaScreen() {
               elevation: 4,
             }}>
               <Text style={{ color: "#fff", fontSize: 11, fontWeight: "700" }}>
-                {l.price_usd ? `USD ${formatCurrency(l.price_usd)}` : "Consultar"}
+                {l.price_usd ? formatCurrency(l.price_usd) : "Consultar"}
               </Text>
             </View>
+
+            {/* Popup — equivalente al Leaflet Popup */}
+            <Callout tooltip onPress={() => router.push(`/listing/${l.slug}`)}>
+              <View style={{
+                width: 210,
+                backgroundColor: "#fff",
+                borderRadius: 12,
+                overflow: "hidden",
+                shadowColor: "#000",
+                shadowOpacity: 0.2,
+                shadowRadius: 8,
+                elevation: 8,
+                borderWidth: 1,
+                borderColor: "#e5e7eb",
+              }}>
+                {/* Header con modalidad */}
+                <View style={{ flexDirection: "row", gap: 4, paddingHorizontal: 12, paddingTop: 10, paddingBottom: 6, borderBottomWidth: 1, borderBottomColor: "#f3f4f6" }}>
+                  {l.for_sale && (
+                    <View style={{ backgroundColor: "#1a4731", paddingHorizontal: 7, paddingVertical: 2, borderRadius: 10 }}>
+                      <Text style={{ color: "#fff", fontSize: 9, fontWeight: "700" }}>VENTA</Text>
+                    </View>
+                  )}
+                  {l.for_rent && (
+                    <View style={{ backgroundColor: "#2563eb", paddingHorizontal: 7, paddingVertical: 2, borderRadius: 10 }}>
+                      <Text style={{ color: "#fff", fontSize: 9, fontWeight: "700" }}>ARREND.</Text>
+                    </View>
+                  )}
+                </View>
+
+                <View style={{ padding: 12, paddingTop: 8 }}>
+                  {/* Título */}
+                  <Text style={{ fontSize: 13, fontWeight: "700", color: "#111827", marginBottom: 4 }} numberOfLines={2}>
+                    {l.title}
+                  </Text>
+
+                  {/* Ubicación y tipo */}
+                  <Text style={{ fontSize: 11, color: "#6b7280", marginBottom: 8 }} numberOfLines={1}>
+                    {l.province}{l.field_type_name ? ` · ${l.field_type_name}` : ""}
+                  </Text>
+
+                  {/* Precio y superficie */}
+                  <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                    <Text style={{ fontSize: 14, fontWeight: "700", color: "#1a4731" }}>
+                      {l.price_usd ? formatCurrency(l.price_usd) : "Consultar"}
+                    </Text>
+                    {l.surface_ha && (
+                      <Text style={{ fontSize: 11, color: "#9ca3af" }}>
+                        {l.surface_ha.toLocaleString()} ha
+                      </Text>
+                    )}
+                  </View>
+
+                  {/* Botón Ver campo */}
+                  <View style={{ backgroundColor: "#1a4731", borderRadius: 8, paddingVertical: 8, alignItems: "center" }}>
+                    <Text style={{ color: "#fff", fontSize: 12, fontWeight: "700" }}>Ver campo →</Text>
+                  </View>
+                </View>
+              </View>
+            </Callout>
           </Marker>
         ))}
       </MapView>
@@ -182,7 +245,7 @@ export default function MapaScreen() {
       {!loading && (
         <View style={{ position: "absolute", top: 14, alignSelf: "center", backgroundColor: "#1a4731", borderRadius: 20, paddingHorizontal: 16, paddingVertical: 7, shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 6, elevation: 4, zIndex: 10 }}>
           <Text style={{ color: "#fff", fontWeight: "600", fontSize: 13 }}>
-            {filtered.length} {filtered.length === 1 ? "campo" : "campos"}{activeFilters > 0 ? " filtrados" : " en venta"}
+            {filtered.length} {filtered.length === 1 ? "campo" : "campos"}{activeFilters > 0 ? " filtrados" : ""}
           </Text>
         </View>
       )}
@@ -214,9 +277,15 @@ export default function MapaScreen() {
             </Text>
           </TouchableOpacity>
 
+          <TouchableOpacity style={pillStyle(!!filterModalidad || activePanel === "modalidad")} onPress={() => togglePanel("modalidad")}>
+            <Text style={pillText(!!filterModalidad || activePanel === "modalidad")}>
+              {filterModalidad === "venta" ? "En venta" : filterModalidad === "arrend" ? "Arrend." : "Modalidad"} {activePanel === "modalidad" ? "▲" : "▼"}
+            </Text>
+          </TouchableOpacity>
+
           {activeFilters > 0 && (
             <TouchableOpacity
-              onPress={() => { setFilterProvincia(null); setFilterTipo(null); setFilterHa(null); setActivePanel(null) }}
+              onPress={() => { setFilterProvincia(null); setFilterTipo(null); setFilterHa(null); setFilterModalidad(null); setActivePanel(null) }}
               style={{ ...pillStyle(false), backgroundColor: "#fee2e2", marginRight: 0 }}
             >
               <Text style={{ color: "#dc2626", fontWeight: "600", fontSize: 13 }}>✕ Limpiar</Text>
@@ -296,13 +365,29 @@ export default function MapaScreen() {
                   ))}
                 </>
               )}
+
+              {activePanel === "modalidad" && (
+                <>
+                  {filterModalidad && (
+                    <TouchableOpacity onPress={() => { setFilterModalidad(null); setActivePanel(null) }} style={{ paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: "#f3f4f6" }}>
+                      <Text style={{ color: "#dc2626", fontSize: 14 }}>✕ Quitar filtro</Text>
+                    </TouchableOpacity>
+                  )}
+                  {([["venta", "En venta"], ["arrend", "Arrendamiento"]] as ["venta" | "arrend", string][]).map(([key, label]) => (
+                    <TouchableOpacity key={key} onPress={() => { setFilterModalidad(key); setActivePanel(null) }} style={{ paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: "#f3f4f6", flexDirection: "row", justifyContent: "space-between" }}>
+                      <Text style={{ fontSize: 14, color: "#111827" }}>{label}</Text>
+                      {filterModalidad === key && <Text style={{ color: "#1a4731" }}>✓</Text>}
+                    </TouchableOpacity>
+                  ))}
+                </>
+              )}
             </ScrollView>
           </View>
         )}
       </View>
 
       {/* Zoom buttons */}
-      <View style={{ position: "absolute", right: 16, bottom: selected ? 140 : 24, flexDirection: "column", zIndex: 999, elevation: 999 }}>
+      <View style={{ position: "absolute", right: 16, bottom: 24, flexDirection: "column", zIndex: 999, elevation: 999 }}>
         <TouchableOpacity onPress={() => zoom(0.5)} style={{ width: 52, height: 52, backgroundColor: "#1a4731", borderRadius: 12, alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 12, marginBottom: 8 }}>
           <Text style={{ fontSize: 30, color: "#fff", fontWeight: "400", lineHeight: 36 }}>+</Text>
         </TouchableOpacity>
@@ -311,39 +396,6 @@ export default function MapaScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Selected listing card */}
-      {selected && (
-        <TouchableOpacity
-          activeOpacity={0.95}
-          onPress={() => router.push(`/listing/${selected.slug}`)}
-          style={{ position: "absolute", bottom: 24, left: 16, right: 16, backgroundColor: "#fff", borderRadius: 16, shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 10, elevation: 8, flexDirection: "row", overflow: "hidden", zIndex: 50 }}
-        >
-          {selected.cover_image ? (
-            <Image source={{ uri: selected.cover_image }} style={{ width: 96, height: 96 }} resizeMode="cover" />
-          ) : (
-            <View style={{ width: 96, height: 96, backgroundColor: "#f3f4f6", alignItems: "center", justifyContent: "center" }}>
-              <Text style={{ fontSize: 32 }}>🌾</Text>
-            </View>
-          )}
-          <View style={{ flex: 1, padding: 12, justifyContent: "space-between" }}>
-            <Text style={{ fontSize: 13, fontWeight: "700", color: "#111827" }} numberOfLines={2}>{selected.title}</Text>
-            <Text style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>
-              {selected.province}{selected.field_type_name ? ` · ${selected.field_type_name}` : ""}
-            </Text>
-            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 6 }}>
-              <Text style={{ fontSize: 15, fontWeight: "700", color: "#1a4731" }}>
-                {selected.price_usd ? formatCurrency(selected.price_usd) : "Consultar precio"}
-              </Text>
-              {selected.surface_ha && (
-                <Text style={{ fontSize: 12, color: "#9ca3af" }}>{selected.surface_ha.toLocaleString()} ha</Text>
-              )}
-            </View>
-          </View>
-          <View style={{ justifyContent: "center", paddingRight: 12 }}>
-            <Text style={{ color: "#1a4731", fontSize: 20 }}>›</Text>
-          </View>
-        </TouchableOpacity>
-      )}
     </View>
   )
 }

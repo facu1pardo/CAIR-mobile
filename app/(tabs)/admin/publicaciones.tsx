@@ -16,6 +16,8 @@ interface Listing {
   created_at: string
   company_name: string | null
   full_name: string
+  for_sale?: boolean
+  for_rent?: boolean
 }
 
 const STATUS_TABS: { key: string; label: string }[] = [
@@ -142,7 +144,7 @@ export default function AdminPublicacionesScreen() {
                   </View>
                 </View>
 
-                <View style={{ flexDirection: "row", gap: 12, marginBottom: 10 }}>
+                <View style={{ flexDirection: "row", gap: 12, marginBottom: 8 }}>
                   {listing.price_usd != null && (
                     <Text style={{ fontSize: 13, fontWeight: "600", color: "#111827" }}>{formatCurrency(listing.price_usd)}</Text>
                   )}
@@ -153,6 +155,20 @@ export default function AdminPublicacionesScreen() {
                     <Text style={{ fontSize: 11, color: "#7c3aed", fontWeight: "600" }}>
                       via {listing.sold_via === "cair" ? "CAIR" : "Externa"}
                     </Text>
+                  )}
+                </View>
+
+                {/* Badges de modalidad */}
+                <View style={{ flexDirection: "row", gap: 6, marginBottom: 10 }}>
+                  {listing.for_sale !== false && (
+                    <View style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 }}>
+                      <Text style={{ fontSize: 10, fontWeight: "700", color: "#16a34a" }}>VENTA</Text>
+                    </View>
+                  )}
+                  {listing.for_rent && (
+                    <View style={{ backgroundColor: "#eff6ff", borderWidth: 1, borderColor: "#bfdbfe", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 }}>
+                      <Text style={{ fontSize: 10, fontWeight: "700", color: "#2563eb" }}>ARREND.</Text>
+                    </View>
                   )}
                 </View>
 
