@@ -49,6 +49,7 @@ export default function TabsLayout() {
         name="dashboard"
         options={{
           title: "Cuenta",
+          tabBarLabel: "Cuenta",
           headerTitle: "Mi cuenta",
           tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} />,
         }}

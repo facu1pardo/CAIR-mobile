@@ -34,7 +34,7 @@ interface Filters {
   precioMax: string
   haMin: string
   haMax: string
-  provincia: string | null
+  provincias: string[]
 }
 
 const DEFAULT_FILTERS: Filters = {
@@ -44,7 +44,7 @@ const DEFAULT_FILTERS: Filters = {
   precioMax: "",
   haMin: "",
   haMax: "",
-  provincia: null,
+  provincias: [],
 }
 
 function countActiveFilters(f: Filters) {
@@ -53,7 +53,7 @@ function countActiveFilters(f: Filters) {
     f.tipos.length +
     (f.precioMin || f.precioMax ? 1 : 0) +
     (f.haMin || f.haMax ? 1 : 0) +
-    (f.provincia ? 1 : 0)
+    f.provincias.length
   )
 }
 
@@ -62,7 +62,7 @@ function filtersToQS(f: Filters, q: string, page: number) {
   if (q) qs.set("q", q)
   if (f.modalidad.length === 1) qs.set("modalidad", f.modalidad[0])
   if (f.tipos.length > 0) qs.set("tipos", f.tipos.join(","))
-  if (f.provincia) qs.set("provincia", f.provincia)
+  if (f.provincias.length > 0) qs.set("provincia", f.provincias.join(","))
   if (f.precioMin) qs.set("precioMin", f.precioMin)
   if (f.precioMax) qs.set("precioMax", f.precioMax)
   if (f.haMin) qs.set("haMin", f.haMin)
@@ -91,6 +91,7 @@ export default function ExplorarScreen() {
   })
   const [showFilters, setShowFilters] = useState(false)
   const [draft, setDraft] = useState<Filters>(filters)
+  const [showProvinceList, setShowProvinceList] = useState(false)
 
   const activeCount = countActiveFilters(filters)
 
@@ -130,6 +131,7 @@ export default function ExplorarScreen() {
 
   function openFilters() {
     setDraft(filters)
+    setShowProvinceList(false)
     setShowFilters(true)
   }
 
@@ -252,9 +254,9 @@ export default function ExplorarScreen() {
         {/* Botón filtros */}
         <TouchableOpacity
           onPress={openFilters}
-          style={{ position: "relative", backgroundColor: activeCount > 0 ? "#1a4731" : "#f3f4f6", borderRadius: 8, paddingHorizontal: 12, paddingVertical: 9 }}
+          style={{ position: "relative", backgroundColor: activeCount > 0 ? "#1a4731" : "#f3f4f6", borderRadius: 8, paddingHorizontal: 12, paddingVertical: 9, alignItems: "center", justifyContent: "center" }}
         >
-          <Text style={{ fontSize: 16, color: activeCount > 0 ? "#fff" : "#374151" }}>⚙️</Text>
+          <FunnelIcon color={activeCount > 0 ? "#fff" : "#374151"} />
           {activeCount > 0 && (
             <View style={{ position: "absolute", top: -4, right: -4, width: 18, height: 18, borderRadius: 9, backgroundColor: "#16a34a", alignItems: "center", justifyContent: "center" }}>
               <Text style={{ color: "#fff", fontSize: 10, fontWeight: "700" }}>{activeCount}</Text>
@@ -292,11 +294,11 @@ export default function ExplorarScreen() {
               </Text>
             </View>
           )}
-          {filters.provincia && (
-            <View style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 16 }}>
-              <Text style={{ color: "#15803d", fontSize: 12, fontWeight: "600" }}>{filters.provincia}</Text>
+          {filters.provincias.map((p) => (
+            <View key={p} style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 16 }}>
+              <Text style={{ color: "#15803d", fontSize: 12, fontWeight: "600" }}>{p}</Text>
             </View>
-          )}
+          ))}
           <TouchableOpacity
             onPress={() => setFilters(DEFAULT_FILTERS)}
             style={{ backgroundColor: "#fee2e2", borderWidth: 1, borderColor: "#fecaca", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 16 }}
@@ -427,24 +429,62 @@ export default function ExplorarScreen() {
 
                 {/* ── Provincia ──────────────────────────────────────────── */}
                 <FilterSection title="Provincia">
-                  <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-                    {PROVINCES.map((p) => (
-                      <TouchableOpacity
-                        key={p}
-                        onPress={() => setDraft((d) => ({ ...d, provincia: d.provincia === p ? null : p }))}
-                        style={{
-                          paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20,
-                          backgroundColor: draft.provincia === p ? "#1a4731" : "#f3f4f6",
-                          borderWidth: 1,
-                          borderColor: draft.provincia === p ? "#1a4731" : "#e5e7eb",
-                        }}
-                      >
-                        <Text style={{ fontSize: 12, fontWeight: "600", color: draft.provincia === p ? "#fff" : "#374151" }}>
-                          {p}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
+                  {/* Dropdown toggle */}
+                  <TouchableOpacity
+                    onPress={() => setShowProvinceList((v) => !v)}
+                    style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", borderWidth: 1, borderColor: "#d1d5db", borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, backgroundColor: "#fff" }}
+                  >
+                    <Text style={{ fontSize: 14, color: draft.provincias.length > 0 ? "#111827" : "#9ca3af" }}>
+                      {draft.provincias.length > 0
+                        ? `${draft.provincias.length} provincia${draft.provincias.length > 1 ? "s" : ""} seleccionada${draft.provincias.length > 1 ? "s" : ""}`
+                        : "Seleccionar provincia..."}
+                    </Text>
+                    <Text style={{ color: "#6b7280", fontSize: 12 }}>{showProvinceList ? "▲" : "▼"}</Text>
+                  </TouchableOpacity>
+
+                  {/* Dropdown list */}
+                  {showProvinceList && (
+                    <View style={{ borderWidth: 1, borderColor: "#d1d5db", borderRadius: 10, marginTop: 6, maxHeight: 220, overflow: "hidden" }}>
+                      <ScrollView nestedScrollEnabled showsVerticalScrollIndicator>
+                        {PROVINCES.map((p, i) => {
+                          const selected = draft.provincias.includes(p)
+                          return (
+                            <TouchableOpacity
+                              key={p}
+                              onPress={() => setDraft((d) => ({
+                                ...d,
+                                provincias: selected
+                                  ? d.provincias.filter((x) => x !== p)
+                                  : [...d.provincias, p],
+                              }))}
+                              style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 14, paddingVertical: 12, borderBottomWidth: i < PROVINCES.length - 1 ? 1 : 0, borderBottomColor: "#f3f4f6", backgroundColor: selected ? "#f0fdf4" : "#fff" }}
+                            >
+                              <Text style={{ fontSize: 14, color: selected ? "#15803d" : "#374151", fontWeight: selected ? "600" : "400" }}>{p}</Text>
+                              {selected && <Text style={{ color: "#15803d", fontSize: 15, fontWeight: "700" }}>✓</Text>}
+                            </TouchableOpacity>
+                          )
+                        })}
+                      </ScrollView>
+                    </View>
+                  )}
+
+                  {/* Selected chips */}
+                  {draft.provincias.length > 0 && (
+                    <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
+                      {draft.provincias.map((p) => (
+                        <View key={p} style={{ flexDirection: "row", alignItems: "center", backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#86efac", paddingLeft: 10, paddingRight: 6, paddingVertical: 6, borderRadius: 20, gap: 6 }}>
+                          <Text style={{ fontSize: 13, color: "#15803d", fontWeight: "600" }}>{p}</Text>
+                          <TouchableOpacity
+                            onPress={() => setDraft((d) => ({ ...d, provincias: d.provincias.filter((x) => x !== p) }))}
+                            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                            style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: "#16a34a", alignItems: "center", justifyContent: "center" }}
+                          >
+                            <Text style={{ color: "#fff", fontSize: 11, fontWeight: "700", lineHeight: 13 }}>✕</Text>
+                          </TouchableOpacity>
+                        </View>
+                      ))}
+                    </View>
+                  )}
                 </FilterSection>
 
                 <View style={{ height: 100 }} />
@@ -456,9 +496,7 @@ export default function ExplorarScreen() {
                   onPress={applyFilters}
                   style={{ backgroundColor: "#1a4731", borderRadius: 14, paddingVertical: 16, alignItems: "center" }}
                 >
-                  <Text style={{ color: "#fff", fontWeight: "700", fontSize: 16 }}>
-                    Ver {total > 0 ? `${total.toLocaleString()} ` : ""}campos
-                  </Text>
+                  <Text style={{ color: "#fff", fontWeight: "700", fontSize: 16 }}>Ver campos</Text>
                 </TouchableOpacity>
               </View>
 
@@ -529,4 +567,14 @@ function RangeInput({ placeholder, value, onChangeText }: {
 
 function Divider() {
   return <View style={{ height: 1, backgroundColor: "#f3f4f6", marginHorizontal: 0 }} />
+}
+
+function FunnelIcon({ color }: { color: string }) {
+  return (
+    <View style={{ alignItems: "center", justifyContent: "center", height: 18, width: 18, gap: 4 }}>
+      <View style={{ width: 18, height: 2, backgroundColor: color, borderRadius: 1 }} />
+      <View style={{ width: 12, height: 2, backgroundColor: color, borderRadius: 1 }} />
+      <View style={{ width: 6, height: 2, backgroundColor: color, borderRadius: 1 }} />
+    </View>
+  )
 }
