@@ -267,7 +267,7 @@ export default function ExplorarScreen() {
 
       {/* Chips de filtros activos */}
       {activeCount > 0 && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#f3f4f6" }} contentContainerStyle={{ paddingHorizontal: 14, paddingVertical: 10, gap: 8, flexDirection: "row", alignItems: "center" }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#f3f4f6", height: 50 }} contentContainerStyle={{ paddingHorizontal: 14, paddingVertical: 10, gap: 8, flexDirection: "row", alignItems: "center" }}>
           {filters.modalidad.map((m) => (
             <View key={m} style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 }}>
               <Text style={{ color: "#15803d", fontSize: 13, fontWeight: "700" }}>{m === "venta" ? "Venta" : "Arrendamiento"}</Text>

@@ -104,6 +104,36 @@ export default function TabsLayout() {
           headerTintColor: "#ffffff",
         }}
       />
+      <Tabs.Screen
+        name="dashboard/consultas"
+        options={{
+          href: null,
+          headerShown: true,
+          title: "Consultas",
+          headerStyle: { backgroundColor: "#1a4731" },
+          headerTintColor: "#ffffff",
+        }}
+      />
+      <Tabs.Screen
+        name="dashboard/mis-publicaciones"
+        options={{
+          href: null,
+          headerShown: true,
+          title: "Mis publicaciones",
+          headerStyle: { backgroundColor: "#1a4731" },
+          headerTintColor: "#ffffff",
+        }}
+      />
+      <Tabs.Screen
+        name="dashboard/suscripcion"
+        options={{
+          href: null,
+          headerShown: true,
+          title: "Mi suscripción",
+          headerStyle: { backgroundColor: "#1a4731" },
+          headerTintColor: "#ffffff",
+        }}
+      />
     </Tabs>
   )
 }

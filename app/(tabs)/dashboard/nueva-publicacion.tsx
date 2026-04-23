@@ -189,14 +189,6 @@ export default function NuevaPublicacion() {
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} className="flex-1 bg-gray-50">
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
 
-        {/* Header */}
-        <View className="flex-row items-center mb-5">
-          <TouchableOpacity onPress={() => router.back()} className="mr-3 bg-gray-100 rounded-full px-4 py-2">
-            <Text className="text-gray-600 font-medium">‹ Volver</Text>
-          </TouchableOpacity>
-          <Text className="text-xl font-bold text-gray-900">Nueva publicación</Text>
-        </View>
-
         {/* Información básica */}
         <View className="bg-white rounded-2xl p-4 mb-4 border border-gray-200">
           <Text className="font-semibold text-gray-900 mb-3">Información básica</Text>
