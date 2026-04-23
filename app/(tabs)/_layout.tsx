@@ -46,7 +46,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="dashboard"
+        name="dashboard/index"
         options={{
           title: "Cuenta",
           tabBarLabel: "Cuenta",

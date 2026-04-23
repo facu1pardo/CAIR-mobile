@@ -267,43 +267,43 @@ export default function ExplorarScreen() {
 
       {/* Chips de filtros activos */}
       {activeCount > 0 && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#f3f4f6" }} contentContainerStyle={{ paddingHorizontal: 14, paddingVertical: 8, gap: 8, flexDirection: "row" }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#f3f4f6" }} contentContainerStyle={{ paddingHorizontal: 14, paddingVertical: 10, gap: 8, flexDirection: "row", alignItems: "center" }}>
           {filters.modalidad.map((m) => (
-            <View key={m} style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 16 }}>
-              <Text style={{ color: "#15803d", fontSize: 12, fontWeight: "600" }}>{m === "venta" ? "Venta" : "Arrendamiento"}</Text>
+            <View key={m} style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 }}>
+              <Text style={{ color: "#15803d", fontSize: 13, fontWeight: "700" }}>{m === "venta" ? "Venta" : "Arrendamiento"}</Text>
             </View>
           ))}
           {filters.tipos.map((s) => (
-            <View key={s} style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 16 }}>
-              <Text style={{ color: "#15803d", fontSize: 12, fontWeight: "600" }}>{FIELD_TYPES.find((f) => f.slug === s)?.label ?? s}</Text>
+            <View key={s} style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 }}>
+              <Text style={{ color: "#15803d", fontSize: 13, fontWeight: "700" }}>{FIELD_TYPES.find((f) => f.slug === s)?.label ?? s}</Text>
             </View>
           ))}
           {(filters.precioMin || filters.precioMax) && (
-            <View style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 16 }}>
-              <Text style={{ color: "#15803d", fontSize: 12, fontWeight: "600" }}>
-                Precio{filters.precioMin ? ` desde USD ${Number(filters.precioMin).toLocaleString()}` : ""}
-                {filters.precioMax ? ` hasta USD ${Number(filters.precioMax).toLocaleString()}` : ""}
+            <View style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 }}>
+              <Text style={{ color: "#15803d", fontSize: 13, fontWeight: "700" }}>
+                Precio{filters.precioMin ? ` ≥ USD ${Number(filters.precioMin).toLocaleString()}` : ""}
+                {filters.precioMax ? ` ≤ USD ${Number(filters.precioMax).toLocaleString()}` : ""}
               </Text>
             </View>
           )}
           {(filters.haMin || filters.haMax) && (
-            <View style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 16 }}>
-              <Text style={{ color: "#15803d", fontSize: 12, fontWeight: "600" }}>
-                Sup.{filters.haMin ? ` desde ${filters.haMin} ha` : ""}
-                {filters.haMax ? ` hasta ${filters.haMax} ha` : ""}
+            <View style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 }}>
+              <Text style={{ color: "#15803d", fontSize: 13, fontWeight: "700" }}>
+                Sup.{filters.haMin ? ` ≥ ${filters.haMin} ha` : ""}
+                {filters.haMax ? ` ≤ ${filters.haMax} ha` : ""}
               </Text>
             </View>
           )}
           {filters.provincias.map((p) => (
-            <View key={p} style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 16 }}>
-              <Text style={{ color: "#15803d", fontSize: 12, fontWeight: "600" }}>{p}</Text>
+            <View key={p} style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 }}>
+              <Text style={{ color: "#15803d", fontSize: 13, fontWeight: "700" }}>{p}</Text>
             </View>
           ))}
           <TouchableOpacity
             onPress={() => setFilters(DEFAULT_FILTERS)}
-            style={{ backgroundColor: "#fee2e2", borderWidth: 1, borderColor: "#fecaca", paddingHorizontal: 10, paddingVertical: 4, borderRadius: 16 }}
+            style={{ backgroundColor: "#fee2e2", borderWidth: 1, borderColor: "#fecaca", paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 }}
           >
-            <Text style={{ color: "#dc2626", fontSize: 12, fontWeight: "600" }}>✕ Limpiar</Text>
+            <Text style={{ color: "#dc2626", fontSize: 13, fontWeight: "700" }}>✕ Limpiar</Text>
           </TouchableOpacity>
         </ScrollView>
       )}
