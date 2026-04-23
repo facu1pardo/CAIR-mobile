@@ -6,7 +6,7 @@ import { formatCurrency, formatNumber } from "@/lib/utils"
 import type { Listing } from "@/types"
 
 const FIELD_TYPE_ICONS: Record<string, string> = {
-  agricola: "🌾", ganadero: "🐄", mixto: "🏡", tambero: "🥛", forestal: "🌲",
+  agricola: "🌾", ganadero: "🐄", tambero: "🥛", forestal: "🌲",
 }
 
 export default function HomeScreen() {

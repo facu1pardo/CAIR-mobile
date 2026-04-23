@@ -27,7 +27,7 @@ const ARGENTINA_REGION: Region = {
   longitudeDelta: 18,
 }
 
-const FIELD_TYPES = ["Agrícola", "Ganadero", "Mixto", "Tambero", "Forestal"]
+const FIELD_TYPES = ["Agrícola", "Ganadero", "Tambero", "Forestal"]
 
 const PROVINCES: { name: string; lat: number; lng: number; delta: number }[] = [
   { name: "Buenos Aires",      lat: -36.6,  lng: -60.0,  delta: 6.0 },
@@ -59,7 +59,7 @@ const PROVINCES: { name: string; lat: number; lng: number; delta: number }[] = [
 const SAMPLE_LISTINGS: MapListing[] = [
   { id: "1", slug: "campo-agricola-cordoba", title: "Campo Agrícola en Córdoba", lat: -32.5, lng: -63.5, price_usd: 2500000, surface_ha: 850, province: "Córdoba", field_type_name: "Agrícola", cover_image: null, for_sale: true, for_rent: false },
   { id: "2", slug: "estancia-ganadera-bs-as", title: "Estancia Ganadera Buenos Aires", lat: -37.2, lng: -59.8, price_usd: 4800000, surface_ha: 2200, province: "Buenos Aires", field_type_name: "Ganadero", cover_image: null, for_sale: true, for_rent: false },
-  { id: "3", slug: "campo-mixto-santa-fe", title: "Campo Mixto Santa Fe", lat: -30.8, lng: -61.2, price_usd: 1900000, surface_ha: 450, province: "Santa Fe", field_type_name: "Mixto", cover_image: null, for_sale: true, for_rent: true },
+  { id: "3", slug: "campo-agricola-santa-fe", title: "Campo Agrícola Santa Fe", lat: -30.8, lng: -61.2, price_usd: 1900000, surface_ha: 450, province: "Santa Fe", field_type_name: "Agrícola", cover_image: null, for_sale: true, for_rent: true },
   { id: "4", slug: "tambo-entre-rios", title: "Tambo Entre Ríos", lat: -32.1, lng: -59.7, price_usd: 980000, surface_ha: 180, province: "Entre Ríos", field_type_name: "Tambero", cover_image: null, for_sale: false, for_rent: true },
   { id: "5", slug: "campo-forestal-misiones", title: "Campo Forestal Misiones", lat: -27.4, lng: -55.1, price_usd: 750000, surface_ha: 320, province: "Misiones", field_type_name: "Forestal", cover_image: null, for_sale: true, for_rent: false },
   { id: "6", slug: "campo-agricola-la-pampa", title: "Campo Agrícola La Pampa", lat: -36.1, lng: -64.8, price_usd: 3100000, surface_ha: 1500, province: "La Pampa", field_type_name: "Agrícola", cover_image: null, for_sale: true, for_rent: true },

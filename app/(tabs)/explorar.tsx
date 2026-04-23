@@ -13,7 +13,6 @@ import type { Listing } from "@/types"
 const FIELD_TYPES = [
   { label: "Agrícola",  slug: "agricola"  },
   { label: "Ganadero",  slug: "ganadero"  },
-  { label: "Mixto",     slug: "mixto"     },
   { label: "Tambero",   slug: "tambero"   },
   { label: "Forestal",  slug: "forestal"  },
 ]
