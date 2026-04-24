@@ -5,9 +5,12 @@ import { apiFetch } from "@/lib/api"
 import { formatCurrency, formatNumber } from "@/lib/utils"
 import type { Listing } from "@/types"
 
-const FIELD_TYPE_ICONS: Record<string, string> = {
-  agricola: "🌾", ganadero: "🐄", tambero: "🥛", forestal: "🌲",
-}
+const FIELD_TYPES_HOME = [
+  { slug: "agricola", icon: "🌾", label: "Agrícola" },
+  { slug: "ganadero", icon: "🐄", label: "Ganadero" },
+  { slug: "tambero",  icon: "🥛", label: "Tambero"  },
+  { slug: "forestal", icon: "🌲", label: "Forestal"  },
+]
 
 export default function HomeScreen() {
   const router = useRouter()
@@ -54,14 +57,14 @@ export default function HomeScreen() {
       <View className="px-5 pt-6">
         <Text className="text-lg font-bold text-gray-900 mb-3">Explorá por tipo</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="gap-3">
-          {Object.entries(FIELD_TYPE_ICONS).map(([slug, icon]) => (
+          {FIELD_TYPES_HOME.map(({ slug, icon, label }) => (
             <TouchableOpacity
               key={slug}
               onPress={() => router.push(`/(tabs)/explorar?tipo=${slug}`)}
               className="items-center bg-gray-50 rounded-xl p-4 mr-3 w-24"
             >
               <Text className="text-3xl mb-1">{icon}</Text>
-              <Text className="text-xs text-gray-700 font-medium capitalize text-center">{slug}</Text>
+              <Text className="text-xs text-gray-700 font-medium text-center">{label}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>

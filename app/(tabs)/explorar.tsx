@@ -93,6 +93,26 @@ export default function ExplorarScreen() {
   const [draft, setDraft] = useState<Filters>(filters)
   const [showProvinceList, setShowProvinceList] = useState(false)
 
+  // Sync URL params → state when navigating from home screen
+  useEffect(() => {
+    if (params.tipo) {
+      const next = { ...DEFAULT_FILTERS, tipos: [params.tipo] }
+      setFilters(next)
+      setDraft(next)
+      setSearch("")
+      setPage(1)
+    }
+  }, [params.tipo])
+
+  useEffect(() => {
+    if (params.q) {
+      setSearch(params.q)
+      setFilters(DEFAULT_FILTERS)
+      setDraft(DEFAULT_FILTERS)
+      setPage(1)
+    }
+  }, [params.q])
+
   const activeCount = countActiveFilters(filters)
 
   const fetchListings = useCallback(async (
@@ -181,15 +201,6 @@ export default function ExplorarScreen() {
           </View>
         )}
 
-        {/* Badge vendido */}
-        {l.status === "sold" && (
-          <View style={{ position: "absolute", top: 0, left: 0, right: 0, height: 160, backgroundColor: "rgba(0,0,0,0.4)", alignItems: "center", justifyContent: "center" }}>
-            <View style={{ backgroundColor: "#2563eb", paddingHorizontal: 16, paddingVertical: 6, borderRadius: 8, transform: [{ rotate: "-8deg" }] }}>
-              <Text style={{ color: "#fff", fontWeight: "800", fontSize: 16, letterSpacing: 1 }}>VENDIDO</Text>
-            </View>
-          </View>
-        )}
-
         <View style={{ padding: 14 }}>
           <Text style={{ fontWeight: "700", color: "#111827", fontSize: 15 }} numberOfLines={2}>{l.title}</Text>
           <Text style={{ color: "#6b7280", fontSize: 13, marginTop: 3 }}>
@@ -267,45 +278,51 @@ export default function ExplorarScreen() {
 
       {/* Chips de filtros activos */}
       {activeCount > 0 && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#f3f4f6", height: 50 }} contentContainerStyle={{ paddingHorizontal: 14, paddingVertical: 10, gap: 8, flexDirection: "row", alignItems: "center" }}>
-          {filters.modalidad.map((m) => (
-            <View key={m} style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 }}>
-              <Text style={{ color: "#15803d", fontSize: 13, fontWeight: "700" }}>{m === "venta" ? "Venta" : "Arrendamiento"}</Text>
-            </View>
-          ))}
-          {filters.tipos.map((s) => (
-            <View key={s} style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 }}>
-              <Text style={{ color: "#15803d", fontSize: 13, fontWeight: "700" }}>{FIELD_TYPES.find((f) => f.slug === s)?.label ?? s}</Text>
-            </View>
-          ))}
-          {(filters.precioMin || filters.precioMax) && (
-            <View style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 }}>
-              <Text style={{ color: "#15803d", fontSize: 13, fontWeight: "700" }}>
-                Precio{filters.precioMin ? ` ≥ USD ${Number(filters.precioMin).toLocaleString()}` : ""}
-                {filters.precioMax ? ` ≤ USD ${Number(filters.precioMax).toLocaleString()}` : ""}
-              </Text>
-            </View>
-          )}
-          {(filters.haMin || filters.haMax) && (
-            <View style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 }}>
-              <Text style={{ color: "#15803d", fontSize: 13, fontWeight: "700" }}>
-                Sup.{filters.haMin ? ` ≥ ${filters.haMin} ha` : ""}
-                {filters.haMax ? ` ≤ ${filters.haMax} ha` : ""}
-              </Text>
-            </View>
-          )}
-          {filters.provincias.map((p) => (
-            <View key={p} style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 }}>
-              <Text style={{ color: "#15803d", fontSize: 13, fontWeight: "700" }}>{p}</Text>
-            </View>
-          ))}
-          <TouchableOpacity
-            onPress={() => setFilters(DEFAULT_FILTERS)}
-            style={{ backgroundColor: "#fee2e2", borderWidth: 1, borderColor: "#fecaca", paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 }}
+        <View style={{ height: 46, backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#f3f4f6" }}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 14, gap: 8, flexDirection: "row", alignItems: "center", height: 46 }}
           >
-            <Text style={{ color: "#dc2626", fontSize: 13, fontWeight: "700" }}>✕ Limpiar</Text>
-          </TouchableOpacity>
-        </ScrollView>
+            {filters.modalidad.map((m) => (
+              <View key={m} style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 }}>
+                <Text style={{ color: "#15803d", fontSize: 13, fontWeight: "700" }}>{m === "venta" ? "Venta" : "Arrendamiento"}</Text>
+              </View>
+            ))}
+            {filters.tipos.map((s) => (
+              <View key={s} style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 }}>
+                <Text style={{ color: "#15803d", fontSize: 13, fontWeight: "700" }}>{FIELD_TYPES.find((f) => f.slug === s)?.label ?? s}</Text>
+              </View>
+            ))}
+            {(filters.precioMin || filters.precioMax) && (
+              <View style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 }}>
+                <Text style={{ color: "#15803d", fontSize: 13, fontWeight: "700" }}>
+                  Precio{filters.precioMin ? ` ≥ USD ${Number(filters.precioMin).toLocaleString()}` : ""}
+                  {filters.precioMax ? ` ≤ USD ${Number(filters.precioMax).toLocaleString()}` : ""}
+                </Text>
+              </View>
+            )}
+            {(filters.haMin || filters.haMax) && (
+              <View style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 }}>
+                <Text style={{ color: "#15803d", fontSize: 13, fontWeight: "700" }}>
+                  Sup.{filters.haMin ? ` ≥ ${filters.haMin} ha` : ""}
+                  {filters.haMax ? ` ≤ ${filters.haMax} ha` : ""}
+                </Text>
+              </View>
+            )}
+            {filters.provincias.map((p) => (
+              <View key={p} style={{ backgroundColor: "#f0fdf4", borderWidth: 1, borderColor: "#bbf7d0", paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 }}>
+                <Text style={{ color: "#15803d", fontSize: 13, fontWeight: "700" }}>{p}</Text>
+              </View>
+            ))}
+            <TouchableOpacity
+              onPress={() => setFilters(DEFAULT_FILTERS)}
+              style={{ backgroundColor: "#fee2e2", borderWidth: 1, borderColor: "#fecaca", paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 }}
+            >
+              <Text style={{ color: "#dc2626", fontSize: 13, fontWeight: "700" }}>✕ Limpiar</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
       )}
 
       {/* Lista */}

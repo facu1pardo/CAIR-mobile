@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useLayoutEffect } from "react"
 import { ScrollView, View, Text, ActivityIndicator, Linking, TouchableOpacity } from "react-native"
+import { useNavigation } from "expo-router"
 import { apiFetch } from "@/lib/api"
 
 type SubscriptionStatus = "pending" | "active" | "expired" | "suspended"
@@ -24,8 +25,19 @@ function formatDate(dateStr: string | null) {
 }
 
 export default function SuscripcionScreen() {
+  const navigation = useNavigation()
   const [subscription, setSubscription] = useState<Subscription | null | undefined>(undefined)
   const [loading, setLoading] = useState(true)
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 4, paddingHorizontal: 8, paddingVertical: 4 }}>
+          <Text style={{ color: "#fff", fontSize: 17, fontWeight: "600" }}>‹ Volver</Text>
+        </TouchableOpacity>
+      ),
+    })
+  }, [navigation])
 
   useEffect(() => {
     apiFetch<{ subscription: Subscription | null }>("/api/mobile/subscription")

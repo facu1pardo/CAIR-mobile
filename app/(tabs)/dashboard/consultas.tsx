@@ -1,32 +1,33 @@
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useLayoutEffect } from "react"
 import { ScrollView, View, Text, ActivityIndicator, TouchableOpacity, Linking } from "react-native"
+import { useNavigation } from "expo-router"
 import { apiFetch } from "@/lib/api"
 import type { Inquiry } from "@/types"
 
 function formatDate(dateStr: string) {
-  const d = new Date(dateStr)
-  return d.toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric" })
+  return new Date(dateStr).toLocaleDateString("es-AR", { day: "2-digit", month: "short", year: "numeric" })
 }
 
 export default function ConsultasScreen() {
+  const navigation = useNavigation()
   const [inquiries, setInquiries] = useState<Inquiry[]>([])
   const [loading, setLoading] = useState(true)
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 4, paddingHorizontal: 8, paddingVertical: 4 }}>
+          <Text style={{ color: "#fff", fontSize: 17, fontWeight: "600" }}>‹ Volver</Text>
+        </TouchableOpacity>
+      ),
+    })
+  }, [navigation])
 
   const loadAndMarkRead = useCallback(async () => {
     try {
       const data = await apiFetch<{ inquiries: Inquiry[] }>("/api/mobile/my-inquiries")
       setInquiries(data.inquiries)
-
-      const unread = data.inquiries.filter((i) => !i.read)
-      await Promise.allSettled(
-        unread.map((i) =>
-          apiFetch(`/api/mobile/inquiries/${i.id}/read`, { method: "PATCH" })
-        )
-      )
-
-      if (unread.length > 0) {
-        setInquiries((prev) => prev.map((i) => ({ ...i, read: true })))
-      }
+      apiFetch("/api/mobile/my-inquiries", { method: "PATCH" }).catch(() => {})
     } catch {
     } finally {
       setLoading(false)
@@ -51,10 +52,7 @@ export default function ConsultasScreen() {
           </View>
         ) : (
           inquiries.map((inq) => (
-            <View
-              key={inq.id}
-              className="bg-white rounded-xl border border-gray-200 p-4 mb-3"
-            >
+            <View key={inq.id} className="bg-white rounded-xl border border-gray-200 p-4 mb-3">
               <View className="flex-row justify-between items-start mb-1">
                 <Text className="text-gray-900 font-semibold flex-1 mr-2">{inq.sender_name}</Text>
                 <Text className="text-gray-400 text-xs">{formatDate(inq.created_at)}</Text>

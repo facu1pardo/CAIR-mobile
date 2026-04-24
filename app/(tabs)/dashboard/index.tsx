@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { ScrollView, View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from "react-native"
 import { useRouter } from "expo-router"
+import { useFocusEffect } from "@react-navigation/native"
 import { useAuth } from "@/lib/auth-context"
 import { apiFetch, login as apiLogin } from "@/lib/api"
 import type { Listing, Inquiry } from "@/types"
@@ -90,7 +91,7 @@ export default function DashboardScreen() {
   const [inquiries, setInquiries] = useState<Inquiry[]>([])
   const [dataLoading, setDataLoading] = useState(false)
 
-  useEffect(() => {
+  const loadData = useCallback(() => {
     if (!user) { setAuthView("landing"); return }
     setDataLoading(true)
     Promise.all([
@@ -101,6 +102,9 @@ export default function DashboardScreen() {
       .catch(() => {})
       .finally(() => setDataLoading(false))
   }, [user])
+
+  useEffect(() => { loadData() }, [loadData])
+  useFocusEffect(loadData)
 
   if (loading) return <ActivityIndicator color="#1a4731" style={{ flex: 1, marginTop: 80 }} />
 

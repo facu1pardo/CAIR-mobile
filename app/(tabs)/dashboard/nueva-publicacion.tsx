@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useLayoutEffect } from "react"
 import {
   ScrollView, View, Text, TextInput, TouchableOpacity,
   ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Image
 } from "react-native"
-import { useRouter } from "expo-router"
+import { useRouter, useNavigation } from "expo-router"
 import * as ImagePicker from "expo-image-picker"
 import * as SecureStore from "expo-secure-store"
 import Constants from "expo-constants"
@@ -18,7 +18,18 @@ interface SelectedImage { uri: string; type: string; name: string }
 
 export default function NuevaPublicacion() {
   const router = useRouter()
+  const navigation = useNavigation()
   const [loading, setLoading] = useState(false)
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 4, paddingHorizontal: 8, paddingVertical: 4 }}>
+          <Text style={{ color: "#fff", fontSize: 17, fontWeight: "600" }}>‹ Volver</Text>
+        </TouchableOpacity>
+      ),
+    })
+  }, [navigation])
   const [fieldTypes, setFieldTypes] = useState<FieldType[]>([])
   const [images, setImages] = useState<SelectedImage[]>([])
   const [uploadProgress, setUploadProgress] = useState("")

@@ -134,6 +134,16 @@ export default function TabsLayout() {
           headerTintColor: "#ffffff",
         }}
       />
+      <Tabs.Screen
+        name="dashboard/editar-publicacion"
+        options={{
+          href: null,
+          headerShown: true,
+          title: "Editar publicación",
+          headerStyle: { backgroundColor: "#1a4731" },
+          headerTintColor: "#ffffff",
+        }}
+      />
     </Tabs>
   )
 }

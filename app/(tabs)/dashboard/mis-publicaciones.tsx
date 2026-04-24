@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react"
+import { useState, useLayoutEffect, useCallback } from "react"
 import { ScrollView, View, Text, ActivityIndicator, TouchableOpacity } from "react-native"
-import { useRouter } from "expo-router"
+import { useRouter, useNavigation } from "expo-router"
+import { useFocusEffect } from "@react-navigation/native"
 import { apiFetch } from "@/lib/api"
 import type { Listing } from "@/types"
 
@@ -21,7 +22,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 function formatPrice(price?: number | null) {
-  if (!price) return "—"
+  if (!price) return "Consultar precio"
   return `USD ${price.toLocaleString("es-AR")}`
 }
 
@@ -31,15 +32,29 @@ function formatDate(dateStr: string) {
 
 export default function MisPublicacionesScreen() {
   const router = useRouter()
+  const navigation = useNavigation()
   const [listings, setListings] = useState<Listing[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 4, paddingHorizontal: 8, paddingVertical: 4 }}>
+          <Text style={{ color: "#fff", fontSize: 17, fontWeight: "600" }}>‹ Volver</Text>
+        </TouchableOpacity>
+      ),
+    })
+  }, [navigation])
+
+  const load = useCallback(() => {
+    setLoading(true)
     apiFetch<{ listings: Listing[] }>("/api/mobile/my-listings")
       .then((d) => setListings(d.listings))
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
+
+  useFocusEffect(load)
 
   if (loading) {
     return <ActivityIndicator color="#1a4731" style={{ flex: 1, marginTop: 80 }} />
@@ -81,7 +96,14 @@ export default function MisPublicacionesScreen() {
                 ) : null}
               </View>
 
-              <Text className="text-gray-400 text-xs mt-2">{formatDate(l.created_at)}</Text>
+              <Text className="text-gray-400 text-xs mt-1">{formatDate(l.created_at)}</Text>
+
+              <TouchableOpacity
+                onPress={() => router.push({ pathname: "/dashboard/editar-publicacion", params: { id: l.id } })}
+                className="mt-3 border border-primary rounded-lg py-2 items-center"
+              >
+                <Text className="text-primary text-sm font-semibold">Editar</Text>
+              </TouchableOpacity>
             </View>
           ))
         )}
