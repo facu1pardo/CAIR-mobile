@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react"
-import { ScrollView, View, Text, TouchableOpacity, TextInput, ActivityIndicator, Image } from "react-native"
-import { useRouter } from "expo-router"
+import { useCallback, useState } from "react"
+import { ScrollView, View, Text, TouchableOpacity, TextInput, ActivityIndicator, Image, RefreshControl } from "react-native"
+import { useRouter, useFocusEffect } from "expo-router"
 import { apiFetch } from "@/lib/api"
 import { formatCurrency, formatNumber } from "@/lib/utils"
 import type { Listing } from "@/types"
@@ -16,17 +16,40 @@ export default function HomeScreen() {
   const router = useRouter()
   const [featured, setFeatured] = useState<Listing[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [search, setSearch] = useState("")
 
-  useEffect(() => {
-    apiFetch<{ listings: Listing[] }>("/api/mobile/listings?featured=true&limit=6")
-      .then((d) => setFeatured(d.listings))
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [])
+  const loadFeatured = async () => {
+    setLoading(true)
+    try {
+      const d = await apiFetch<{ listings: Listing[] }>("/api/mobile/listings?featured=true&limit=6")
+      setFeatured(d.listings)
+    } catch {
+      // error silently
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleRefresh = async () => {
+    setRefreshing(true)
+    try {
+      const d = await apiFetch<{ listings: Listing[] }>("/api/mobile/listings?featured=true&limit=6")
+      setFeatured(d.listings)
+    } catch {
+      // error silently
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
+  useFocusEffect(useCallback(() => { loadFeatured() }, []))
 
   return (
-    <ScrollView className="flex-1 bg-white">
+    <ScrollView
+      className="flex-1 bg-white"
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#1a4731" />}
+    >
       {/* Hero */}
       <View className="bg-primary px-5 pt-8 pb-10">
         <Text className="text-white text-3xl font-bold mb-1">Tu próximo campo,</Text>

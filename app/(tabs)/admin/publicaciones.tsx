@@ -20,13 +20,6 @@ interface Listing {
   for_rent?: boolean
 }
 
-const STATUS_TABS: { key: string; label: string }[] = [
-  { key: "active", label: "Activas" },
-  { key: "paused", label: "Pausadas" },
-  { key: "draft", label: "Borradores" },
-  { key: "sold", label: "Vendidas" },
-]
-
 const STATUS_COLORS: Record<string, { bg: string; text: string; label: string }> = {
   active:  { bg: "#dcfce7", text: "#16a34a", label: "Activa" },
   paused:  { bg: "#fef3c7", text: "#d97706", label: "Pausada" },
@@ -37,13 +30,12 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; label: string }>
 export default function AdminPublicacionesScreen() {
   const [listings, setListings] = useState<Listing[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState("active")
   const [updating, setUpdating] = useState<string | null>(null)
 
-  async function load(status: string) {
+  async function load() {
     setLoading(true)
     try {
-      const data = await apiFetch<{ listings: Listing[] }>(`/api/mobile/admin/publicaciones?status=${status}`)
+      const data = await apiFetch<{ listings: Listing[] }>("/api/mobile/admin/publicaciones")
       setListings(data.listings)
     } catch {
       Alert.alert("Error", "No se pudieron cargar las publicaciones")
@@ -52,7 +44,7 @@ export default function AdminPublicacionesScreen() {
     }
   }
 
-  useEffect(() => { load(activeTab) }, [activeTab])
+  useEffect(() => { load() }, [])
 
   async function changeStatus(listing: Listing, newStatus: string) {
     const label = STATUS_COLORS[newStatus]?.label ?? newStatus
@@ -70,7 +62,7 @@ export default function AdminPublicacionesScreen() {
                 method: "PATCH",
                 body: JSON.stringify({ id: listing.id, status: newStatus }),
               })
-              await load(activeTab)
+              await load()
             } catch {
               Alert.alert("Error", "No se pudo cambiar el estado")
             } finally {
@@ -97,25 +89,14 @@ export default function AdminPublicacionesScreen() {
     }
   }
 
-  const badge = STATUS_COLORS[activeTab] ?? STATUS_COLORS.active
-
   return (
     <View style={{ flex: 1, backgroundColor: "#f9fafb" }}>
-      {/* Status tabs */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#e5e7eb" }} contentContainerStyle={{ paddingHorizontal: 12, paddingVertical: 10, gap: 8, flexDirection: "row" }}>
-        {STATUS_TABS.map((tab) => {
-          const active = tab.key === activeTab
-          return (
-            <TouchableOpacity
-              key={tab.key}
-              onPress={() => setActiveTab(tab.key)}
-              style={{ paddingHorizontal: 16, paddingVertical: 7, borderRadius: 20, backgroundColor: active ? "#1a4731" : "#f3f4f6" }}
-            >
-              <Text style={{ fontSize: 13, fontWeight: "600", color: active ? "#fff" : "#6b7280" }}>{tab.label}</Text>
-            </TouchableOpacity>
-          )
-        })}
-      </ScrollView>
+      {/* Header */}
+      <View style={{ backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#e5e7eb", paddingHorizontal: 12, paddingVertical: 12 }}>
+        <Text style={{ fontSize: 16, fontWeight: "700", color: "#111827" }}>
+          Todas las publicaciones ({listings.length})
+        </Text>
+      </View>
 
       {loading ? (
         <ActivityIndicator color="#1a4731" style={{ flex: 1, marginTop: 60 }} />
@@ -124,11 +105,13 @@ export default function AdminPublicacionesScreen() {
           {listings.length === 0 && (
             <View style={{ alignItems: "center", paddingVertical: 60 }}>
               <Text style={{ fontSize: 36, marginBottom: 8 }}>📋</Text>
-              <Text style={{ color: "#6b7280", fontSize: 14 }}>No hay publicaciones en este estado</Text>
+              <Text style={{ color: "#6b7280", fontSize: 14 }}>No hay publicaciones</Text>
             </View>
           )}
 
-          {listings.map((listing) => (
+          {listings.map((listing) => {
+            const badge = STATUS_COLORS[listing.status] ?? STATUS_COLORS.active
+            return (
             <View key={listing.id} style={{ backgroundColor: "#fff", borderRadius: 12, borderWidth: 1, borderColor: "#e5e7eb", overflow: "hidden" }}>
               <View style={{ padding: 14 }}>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
@@ -172,10 +155,6 @@ export default function AdminPublicacionesScreen() {
                   )}
                 </View>
 
-                {listing.featured && (
-                  <Text style={{ fontSize: 11, color: "#d97706", fontWeight: "600", marginBottom: 8 }}>⭐ Destacado</Text>
-                )}
-
                 {/* Actions */}
                 {updating === listing.id ? (
                   <ActivityIndicator color="#1a4731" style={{ alignSelf: "flex-start" }} />
@@ -186,11 +165,11 @@ export default function AdminPublicacionesScreen() {
                       style={{ borderWidth: 1, borderColor: "#d97706", borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6, backgroundColor: listing.featured ? "#fef3c7" : "#fff" }}
                     >
                       <Text style={{ fontSize: 12, fontWeight: "600", color: "#d97706" }}>
-                        {listing.featured ? "Quitar destacado" : "Destacar"}
+                        {listing.featured ? "⭐ Destacado" : "☆ Destacado"}
                       </Text>
                     </TouchableOpacity>
 
-                    {activeTab !== "paused" && activeTab !== "sold" && (
+                    {listing.status !== "paused" && listing.status !== "sold" && (
                       <TouchableOpacity
                         onPress={() => changeStatus(listing, "paused")}
                         style={{ borderWidth: 1, borderColor: "#d1d5db", borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6 }}
@@ -199,7 +178,7 @@ export default function AdminPublicacionesScreen() {
                       </TouchableOpacity>
                     )}
 
-                    {activeTab === "paused" && (
+                    {listing.status === "paused" && (
                       <TouchableOpacity
                         onPress={() => changeStatus(listing, "active")}
                         style={{ borderWidth: 1, borderColor: "#16a34a", borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6, backgroundColor: "#f0fdf4" }}
@@ -211,7 +190,8 @@ export default function AdminPublicacionesScreen() {
                 )}
               </View>
             </View>
-          ))}
+            )
+          })}
         </ScrollView>
       )}
     </View>

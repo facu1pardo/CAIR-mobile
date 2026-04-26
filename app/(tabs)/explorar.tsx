@@ -8,6 +8,15 @@ import { apiFetch } from "@/lib/api"
 import { formatCurrency, formatNumber } from "@/lib/utils"
 import type { Listing } from "@/types"
 
+// ─── Colores por tipo de campo ───────────────────────────────────────────────
+
+const FIELD_TYPE_STYLES: Record<string, { bg: string; text: string }> = {
+  agricola: { bg: "#fef9c3", text: "#854d0e" },
+  ganadero: { bg: "#d6b49a", text: "#431407" },
+  forestal: { bg: "#bbf7d0", text: "#15803d" },
+  tambero:  { bg: "#fef3c7", text: "#92400e" },
+}
+
 // ─── Constantes de dominio ───────────────────────────────────────────────────
 
 const FIELD_TYPES = [
@@ -192,14 +201,28 @@ export default function ExplorarScreen() {
         activeOpacity={0.9}
         style={{ backgroundColor: "#fff", borderRadius: 12, overflow: "hidden", borderWidth: 1, borderColor: "#e5e7eb", shadowColor: "#000", shadowOpacity: 0.06, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }, elevation: 2 }}
       >
-        {/* Imagen */}
-        {l.cover_image ? (
-          <Image source={{ uri: l.cover_image }} style={{ width: "100%", height: 160 }} resizeMode="cover" />
-        ) : (
-          <View style={{ width: "100%", height: 160, backgroundColor: "#f3f4f6", alignItems: "center", justifyContent: "center" }}>
-            <Text style={{ fontSize: 40 }}>🌾</Text>
+        {/* Imagen con badge de modalidad encima */}
+        <View style={{ position: "relative" }}>
+          {l.cover_image ? (
+            <Image source={{ uri: l.cover_image }} style={{ width: "100%", height: 160 }} resizeMode="cover" />
+          ) : (
+            <View style={{ width: "100%", height: 160, backgroundColor: "#f3f4f6", alignItems: "center", justifyContent: "center" }}>
+              <Text style={{ fontSize: 40 }}>🌾</Text>
+            </View>
+          )}
+          <View style={{ position: "absolute", top: 8, left: 8, flexDirection: "row", gap: 5 }}>
+            {l.for_sale !== false && (
+              <View style={{ backgroundColor: "rgba(26,71,49,0.88)", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
+                <Text style={{ color: "#fff", fontSize: 10, fontWeight: "700" }}>EN VENTA</Text>
+              </View>
+            )}
+            {l.for_rent && (
+              <View style={{ backgroundColor: "rgba(37,99,235,0.88)", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
+                <Text style={{ color: "#fff", fontSize: 10, fontWeight: "700" }}>ARRENDAMIENTO</Text>
+              </View>
+            )}
           </View>
-        )}
+        </View>
 
         <View style={{ padding: 14 }}>
           <Text style={{ fontWeight: "700", color: "#111827", fontSize: 15 }} numberOfLines={2}>{l.title}</Text>
@@ -207,21 +230,18 @@ export default function ExplorarScreen() {
             {[l.locality, l.partido, l.province].filter(Boolean).join(", ")}
           </Text>
 
-          {/* Badges modalidad */}
-          <View style={{ flexDirection: "row", gap: 6, marginTop: 8 }}>
-            {l.for_sale !== false && (
-              <View style={{ backgroundColor: "#1a4731", paddingHorizontal: 8, paddingVertical: 3, borderRadius: 12 }}>
-                <Text style={{ color: "#fff", fontSize: 10, fontWeight: "700" }}>EN VENTA</Text>
-              </View>
-            )}
-            {l.for_rent && (
-              <View style={{ backgroundColor: "#2563eb", paddingHorizontal: 8, paddingVertical: 3, borderRadius: 12 }}>
-                <Text style={{ color: "#fff", fontSize: 10, fontWeight: "700" }}>ARRENDAMIENTO</Text>
-              </View>
-            )}
-          </View>
+          {/* Badge tipo de campo */}
+          {l.field_type_slug && FIELD_TYPE_STYLES[l.field_type_slug] ? (
+            <View style={{ alignSelf: "flex-start", backgroundColor: FIELD_TYPE_STYLES[l.field_type_slug].bg, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, marginTop: 8 }}>
+              <Text style={{ color: FIELD_TYPE_STYLES[l.field_type_slug].text, fontSize: 11, fontWeight: "700" }}>
+                {l.field_type_name?.toUpperCase()}
+              </Text>
+            </View>
+          ) : (
+            <View style={{ height: 8 }} />
+          )}
 
-          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 10 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 8 }}>
             <Text style={{ color: "#1a4731", fontWeight: "700", fontSize: 17 }}>
               {l.price_usd ? formatCurrency(l.price_usd) : "Consultar precio"}
             </Text>
@@ -229,12 +249,6 @@ export default function ExplorarScreen() {
               <Text style={{ color: "#6b7280", fontSize: 13 }}>{formatNumber(l.surface_ha)} ha</Text>
             )}
           </View>
-
-          {l.field_type_name && (
-            <View style={{ marginTop: 8, alignSelf: "flex-start", backgroundColor: "#f0fdf4", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 20 }}>
-              <Text style={{ color: "#1a4731", fontSize: 12, fontWeight: "500" }}>{l.field_type_name}</Text>
-            </View>
-          )}
         </View>
       </TouchableOpacity>
     )
