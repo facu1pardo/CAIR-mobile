@@ -1,4 +1,4 @@
-import { useState, useLayoutEffect, useCallback } from "react"
+import { useState, useLayoutEffect, useCallback, useRef, useEffect } from "react"
 import { ScrollView, View, Text, ActivityIndicator, TouchableOpacity } from "react-native"
 import { useRouter, useNavigation } from "expo-router"
 import { useFocusEffect } from "@react-navigation/native"
@@ -33,6 +33,7 @@ function formatDate(dateStr: string) {
 export default function MisPublicacionesScreen() {
   const router = useRouter()
   const navigation = useNavigation()
+  const scrollRef = useRef<ScrollView>(null)
   const [listings, setListings] = useState<Listing[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -54,6 +55,8 @@ export default function MisPublicacionesScreen() {
       .finally(() => setLoading(false))
   }, [])
 
+  useEffect(() => { scrollRef.current?.scrollTo({ y: 0, animated: false }) }, [])
+
   useFocusEffect(load)
 
   if (loading) {
@@ -61,7 +64,7 @@ export default function MisPublicacionesScreen() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScrollView ref={scrollRef} className="flex-1 bg-gray-50">
       <View className="px-4 py-4">
         <TouchableOpacity
           onPress={() => router.push("/dashboard/nueva-publicacion")}

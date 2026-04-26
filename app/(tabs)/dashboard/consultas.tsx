@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useLayoutEffect } from "react"
+import { useEffect, useState, useCallback, useLayoutEffect, useRef } from "react"
 import { ScrollView, View, Text, ActivityIndicator, TouchableOpacity, Linking } from "react-native"
 import { useNavigation } from "expo-router"
 import { apiFetch } from "@/lib/api"
@@ -10,6 +10,7 @@ function formatDate(dateStr: string) {
 
 export default function ConsultasScreen() {
   const navigation = useNavigation()
+  const scrollRef = useRef<ScrollView>(null)
   const [inquiries, setInquiries] = useState<Inquiry[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -34,6 +35,8 @@ export default function ConsultasScreen() {
     }
   }, [])
 
+  useEffect(() => { scrollRef.current?.scrollTo({ y: 0, animated: false }) }, [])
+
   useEffect(() => {
     loadAndMarkRead()
   }, [loadAndMarkRead])
@@ -43,7 +46,7 @@ export default function ConsultasScreen() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScrollView ref={scrollRef} className="flex-1 bg-gray-50">
       <View className="px-4 py-4">
         {inquiries.length === 0 ? (
           <View className="bg-white rounded-xl border border-gray-200 p-12 items-center">

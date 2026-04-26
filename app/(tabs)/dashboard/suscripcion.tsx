@@ -1,4 +1,4 @@
-import { useEffect, useState, useLayoutEffect } from "react"
+import { useEffect, useState, useLayoutEffect, useRef } from "react"
 import { ScrollView, View, Text, ActivityIndicator, Linking, TouchableOpacity } from "react-native"
 import { useNavigation } from "expo-router"
 import { apiFetch } from "@/lib/api"
@@ -26,6 +26,7 @@ function formatDate(dateStr: string | null) {
 
 export default function SuscripcionScreen() {
   const navigation = useNavigation()
+  const scrollRef = useRef<ScrollView>(null)
   const [subscription, setSubscription] = useState<Subscription | null | undefined>(undefined)
   const [loading, setLoading] = useState(true)
 
@@ -38,6 +39,8 @@ export default function SuscripcionScreen() {
       ),
     })
   }, [navigation])
+
+  useEffect(() => { scrollRef.current?.scrollTo({ y: 0, animated: false }) }, [])
 
   useEffect(() => {
     apiFetch<{ subscription: Subscription | null }>("/api/mobile/subscription")
@@ -53,7 +56,7 @@ export default function SuscripcionScreen() {
   const badge = subscription ? STATUS_MAP[subscription.status] ?? { label: subscription.status, color: "#374151", bg: "#f3f4f6" } : null
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScrollView ref={scrollRef} className="flex-1 bg-gray-50">
       <View className="px-4 py-4">
         {!subscription ? (
           <View className="bg-white rounded-xl border border-gray-200 p-6">

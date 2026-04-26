@@ -1,9 +1,9 @@
-import { useState, useEffect, useLayoutEffect } from "react"
+import { useState, useEffect, useLayoutEffect, useCallback, useRef } from "react"
 import {
   ScrollView, View, Text, TextInput, TouchableOpacity,
   ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Image
 } from "react-native"
-import { useRouter, useNavigation } from "expo-router"
+import { useRouter, useNavigation, useFocusEffect } from "expo-router"
 import * as ImagePicker from "expo-image-picker"
 import * as SecureStore from "expo-secure-store"
 import Constants from "expo-constants"
@@ -19,6 +19,7 @@ interface SelectedImage { uri: string; type: string; name: string }
 export default function NuevaPublicacion() {
   const router = useRouter()
   const navigation = useNavigation()
+  const scrollRef = useRef<ScrollView>(null)
   const [loading, setLoading] = useState(false)
 
   useLayoutEffect(() => {
@@ -58,6 +59,22 @@ export default function NuevaPublicacion() {
     rent_observations: "",
     rent_crop: "",
   })
+
+  useFocusEffect(
+    useCallback(() => {
+      scrollRef.current?.scrollTo({ y: 0, animated: false })
+      setForm({
+        title: "", description: "", province: "", partido: "", locality: "",
+        field_type_ids: [], surface_ha: "", price_usd: "", price_per_ha_usd: "",
+        contact_name: "", contact_email: "", contact_phone: "", contact_whatsapp: "",
+        lat: "", lng: "", for_sale: true, for_rent: false,
+        rent_unit: "", rent_price_per_ha: "", rent_payment_frequency: "",
+        rent_observations: "", rent_crop: "",
+      })
+      setImages([])
+      setCropPreset("")
+    }, [])
+  )
 
   useEffect(() => {
     apiFetch<{ types: FieldType[] }>("/api/mobile/field-types")
@@ -198,7 +215,7 @@ export default function NuevaPublicacion() {
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} className="flex-1 bg-gray-50">
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
+      <ScrollView ref={scrollRef} contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
 
         {/* Información básica */}
         <View className="bg-white rounded-2xl p-4 mb-4 border border-gray-200">

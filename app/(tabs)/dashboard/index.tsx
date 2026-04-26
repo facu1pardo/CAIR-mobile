@@ -190,6 +190,13 @@ export default function DashboardScreen() {
 
         <View className="bg-white rounded-xl border border-gray-200 mb-6 overflow-hidden">
           <Text className="text-gray-500 text-xs font-semibold px-4 pt-4 pb-2 uppercase tracking-wide">Cuenta</Text>
+          {user.role !== "admin" && (
+            <TouchableOpacity onPress={() => router.push("/dashboard/editar-cuenta")} className="flex-row items-center px-4 py-3 border-t border-gray-100">
+              <Text className="text-xl mr-3">✏️</Text>
+              <Text className="text-gray-900 font-medium flex-1">Editar mi perfil</Text>
+              <Text className="text-gray-400">›</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity onPress={() => router.push("/dashboard/suscripcion")} className="flex-row items-center px-4 py-3 border-t border-gray-100">
             <Text className="text-xl mr-3">⭐</Text>
             <Text className="text-gray-900 font-medium flex-1">Mi suscripción</Text>

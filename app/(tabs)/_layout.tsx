@@ -144,6 +144,16 @@ export default function TabsLayout() {
           headerTintColor: "#ffffff",
         }}
       />
+      <Tabs.Screen
+        name="dashboard/editar-cuenta"
+        options={{
+          href: null,
+          headerShown: true,
+          title: "Editar mi perfil",
+          headerStyle: { backgroundColor: "#1a4731" },
+          headerTintColor: "#ffffff",
+        }}
+      />
     </Tabs>
   )
 }

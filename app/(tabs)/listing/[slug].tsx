@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { ScrollView, View, Text, TouchableOpacity, ActivityIndicator, Image, Linking, TextInput, Alert, Dimensions } from "react-native"
 import { useLocalSearchParams, useNavigation } from "expo-router"
 import { apiFetch } from "@/lib/api"
@@ -11,6 +11,7 @@ const SCREEN_WIDTH = Dimensions.get("window").width
 export default function ListingDetailScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>()
   const navigation = useNavigation()
+  const scrollRef = useRef<ScrollView>(null)
   const [listing, setListing] = useState<Listing | null>(null)
   const [images, setImages] = useState<{ url: string; type?: string }[]>([])
   const [activeImage, setActiveImage] = useState(0)
@@ -19,6 +20,11 @@ export default function ListingDetailScreen() {
   const [sending, setSending] = useState(false)
 
   useEffect(() => {
+    scrollRef.current?.scrollTo({ y: 0, animated: false })
+    setListing(null)
+    setImages([])
+    setActiveImage(0)
+    setLoading(true)
     apiFetch<{ listing: Listing; images: { url: string }[] }>(`/api/mobile/listings/${slug}`)
       .then((d) => {
         setListing(d.listing)
@@ -63,7 +69,7 @@ export default function ListingDetailScreen() {
   const rentFreq = listing.rent_payment_frequency ? RENT_PAYMENT_FREQUENCY_LABELS[listing.rent_payment_frequency] : ""
 
   return (
-    <ScrollView className="flex-1 bg-white">
+    <ScrollView ref={scrollRef} className="flex-1 bg-white">
       {/* Carrusel de imágenes */}
       <View style={{ height: 240, backgroundColor: "#111" }}>
         {images.length > 0 ? (

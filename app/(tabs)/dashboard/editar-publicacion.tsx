@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect } from "react"
+import { useState, useEffect, useLayoutEffect, useRef } from "react"
 import {
   ScrollView, View, Text, TextInput, TouchableOpacity,
   ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Image,
@@ -30,6 +30,7 @@ export default function EditarPublicacion() {
   const router = useRouter()
   const navigation = useNavigation()
   const { id } = useLocalSearchParams<{ id: string }>()
+  const scrollRef = useRef<ScrollView>(null)
 
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(true)
@@ -56,6 +57,10 @@ export default function EditarPublicacion() {
       ),
     })
   }, [navigation])
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ y: 0, animated: false })
+  }, [id])
 
   useEffect(() => {
     Promise.all([
@@ -250,7 +255,7 @@ export default function EditarPublicacion() {
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1, backgroundColor: "#f9fafb" }}>
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
+      <ScrollView ref={scrollRef} contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
 
         {/* Información básica */}
         <View style={{ backgroundColor: "#fff", borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: "#e5e7eb" }}>
